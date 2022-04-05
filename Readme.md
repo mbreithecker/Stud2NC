@@ -17,11 +17,18 @@ I used to run this script every 15 minutes on a VPS.
 It also supports Stud.IP-announcements. A nice thing about it is,
 that it keeps the changelog of announcements. 
 Lecturers usually tended to delete them after some time.
+Since I'm no longer attending university I decided to polish the
+source code a little and publish it on GitHub.
 
 ### Installation
 ```
 zip Stud2NC src/*
 python3 Stud2NC.zip [args]
+```
+Copy `Stud2NC.zip` and (the configured) `config.yaml` to a VPS and configure a
+crontab (`crontab -e`:
+```
+*/15 * * * * python3 Stud2NC.zip
 ```
 
 ### Local sync to file-system
@@ -45,9 +52,16 @@ or environment-variables. For example passwords can be
 injected via the environment whereas the folder configuration 
 should be set in a config file.
 
-
-### Configure multiple modules to sync
-
+The `config.yaml` in this project can be used as a template
+it is heavily commented. Replace all the credentials and 
+specify the required modules.
 
 ### Contribution
-By creating a pull request you accept that the code is licenced under the conditions specified in the LICENSE.txt file.
+By creating a pull request you accept that the code is 
+licenced under the conditions specified in the LICENSE.txt file.
+
+One thing I never really fixed, is when files get edited, but
+don't change their file-id. Stud2NC won't resync them. 
+When a file has changed the edit-date differs from the creation-date.
+This makes it possible to check for edited files. Feel free to create
+a pull request.

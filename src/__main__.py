@@ -57,3 +57,6 @@ if __name__ == '__main__':
             local_file.write("\n\n\n".join([a.format_markdown() for a in announcements]))
 
         crawler.logout_session()
+
+    elif args.destination == "nextcloud":
+        pass
