@@ -6,10 +6,10 @@ from studip_parser import StudIpCrawler
 
 if __name__ == '__main__':
 
-    p = configargparse.ArgParser(default_config_files=['./config.yaml'])
+    p = configargparse.ArgParser(default_config_files=['./config.yaml'], ignore_unknown_config_file_keys=True)
 
     p.add_argument('-s', '--single_link', help="Stud.IP Link to module overview")
-    p.add_argument('-d', '--destination', choices=['nextcloud', 'filesystem'], required=True,
+    p.add_argument('-t', '--target', choices=['nextcloud', 'filesystem'], required=True,
                    help="Remote folder on nextcloud instance")
     p.add_argument('-o', '--output', default="./out", help="Directory to download files to")
     p.add_argument('-v', '--verbose', action="store_true")
@@ -23,16 +23,21 @@ if __name__ == '__main__':
     p.add_argument('--studip_password', required=True, help='password for Stud.IP')
 
     args = p.parse_args()
-    args.single_link = "https://studip.uni-giessen.de/dispatch.php/course/overview?cid=d39b9f754481cd8a3b7c51387e6d26b7"
 
-    if args.destination == "filesystem":
+    # Parse module list separately as it doesn't seem supported by the arg-parse-library
+    modules = []
+    try:
+        with open("config.yaml") as config_file:
+            modules = yaml.safe_load(config_file)
+    except:
+        pass
 
         # Create session
         crawler = StudIpCrawler(args)
         crawler.login_session()
 
-        # Fetch all files
-        files = crawler.find(args.single_link.replace("overview", "files"))
+    if args.target == "filesystem":
+        # Sync module to local folder
 
         for file in files:
             folder_path = os.path.join(args.output, *file.relative_path.split("/"))
@@ -58,5 +63,6 @@ if __name__ == '__main__':
 
         crawler.logout_session()
 
-    elif args.destination == "nextcloud":
+    elif args.target == "nextcloud":
+        # Sync module to nextcloud
         pass
