@@ -1,8 +1,7 @@
-import os
-
 import configargparse
+import yaml
 
-from studip_parser import StudIpCrawler
+from sync import FilesystemSync
 
 if __name__ == '__main__':
 
@@ -32,36 +31,27 @@ if __name__ == '__main__':
     except:
         pass
 
-        # Create session
-        crawler = StudIpCrawler(args)
-        crawler.login_session()
+    # Start program
 
     if args.target == "filesystem":
         # Sync module to local folder
 
-        for file in files:
-            folder_path = os.path.join(args.output, *file.relative_path.split("/"))
-            file_path = os.path.join(folder_path, file.name)
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
+        fileSync = FilesystemSync(args)
+        fileSync.open()
 
+        if args.single_link:
             if args.verbose:
-                print("Download: ", file_path)
+                print("Sync single module: " + args.single_link)
 
-            with open(file_path, "wb") as local_file:
-                local_file.write(crawler.download_file(file))
+            fileSync.sync_module(args.single_link, args.output)
+        else:
+            for module in modules:
+                if args.verbose:
+                    print("Sync module: " + module)
 
-        # Fetch announcements
-        announcements = crawler.download_announcements(args.single_link)
+                fileSync.sync_module(module.module_link, module.destination)
 
-        if args.verbose:
-            for anc in announcements:
-                print("Announcement: ", anc.title)
-
-        with open(os.path.join(args.output, "Ankündigungen.md"), "w") as local_file:
-            local_file.write("\n\n\n".join([a.format_markdown() for a in announcements]))
-
-        crawler.logout_session()
+        fileSync.close()
 
     elif args.target == "nextcloud":
         # Sync module to nextcloud
