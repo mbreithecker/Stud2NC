@@ -12,7 +12,7 @@ class Announcement:
         self.content: str = ""
         self.remote_link: str = ""
 
-    def format_markdown(self):
+    def format_markdown(self) -> str:
         """
         Replace html tags with Markdown formatting
         :return: string of contents with Markdown formatting
@@ -57,3 +57,6 @@ class RemoteFile:
     details_url = None
     download_url = None
     relative_path = None
+
+    def file_path(self) -> str:
+        return self.relative_path + "/" + self.name

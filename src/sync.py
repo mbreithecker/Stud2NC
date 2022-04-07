@@ -3,45 +3,85 @@ import os
 from studip_parser import StudIpCrawler
 from nextcloud import NextcloudClient
 
+# All announcements for a given module are stored in this file
+ANNOUNCEMENTS_FILE_NAME = "_Ankündigungen.md"
+
 
 class NextcloudSync:
 
-    def __init__(self, args, crawler: StudIpCrawler):
+    __file_db_name = "sz_file_db_2.txt"
+    __announcements_db_name = "sz_anc_db_2.txt"
+
+    def __init__(self, args):
         self.args = args
         self.client: NextcloudClient = None
-        self.crawler = crawler
-        self.__files_db = []
+        self.crawler = None
+
+        # Keeps track of existing files in the nextcloud
+        self.__file_db = []
         self.__announcements_db = []
 
     def open(self):
-        self.client = NextcloudClient(self.args)
-        self.client.login_session()
-
+        self.crawler = StudIpCrawler(self.args)
         self.crawler.login_session()
+
+        self.client = NextcloudClient(self.args)
+
+        file_db_txt = self.client.download_file(self.__file_db_name)
+        if file_db_txt is not None:
+            self.__file_db = [f for f in file_db_txt.text.strip().split("\n") if len(f) > 1]
+
+        anc_db_txt = self.client.download_file(self.__announcements_db_name)
+        if anc_db_txt is not None:
+            self.__announcements_db = [f for f in anc_db_txt.text.strip().split("\n") if len(f) > 1]
+
+        if self.args.verbose:
+            print("Nextcloud database loaded")
 
     def close(self):
         # Upload database
-        self.client.upload_file()
+        upload_db = "\n".join([str(entry) for entry in self.__file_db]).encode("utf-8")
+        self.client.upload_file(upload_db, self.__file_db_name)
 
-        self.client.logout_session()
+        upload_db = "\n".join([str(entry) for entry in self.__announcements_db]).encode("utf-8")
+        self.client.upload_file(upload_db, self.__announcements_db_name)
+
+        # Logout from Stud.IP
         self.crawler.logout_session()
 
-    def sync_module(self):
-        pass
-    #
-    # def __add_file_to_db(self, remote_file: RemoteFile):
-    #     if not self.does_file_exist(remote_file):
-    #         self.__file_db.append(remote_file.download_url)
-    #
-    # def __does_file_exist(self, remote_file: RemoteFile):
-    #     return self.__file_db.index(remote_file.download_url) != -1
-    #
-    # def __add_announcement_to_db(self, announcement: Announcement):
-    #     if not self.does_announcement_exist(announcement):
-    #         self.__announcements_db.append(announcement.get_hash())
-    #
-    # def __does_announcement_exist(self, announcement: Announcement):
-    #     return self.__announcements_db.index(announcement.get_hash()) != -1
+    def sync_module(self, remote_url, destination):
+        # Parse URL
+        destination = destination if destination.endswith("/") else destination + "/"
+
+        # Fetch all files
+        files = self.crawler.find(remote_url.replace("overview", "files"))
+
+        for file in files:
+            if file.file_path() not in self.__file_db:
+                self.__file_db.append(file.file_path())
+
+                if self.args.verbose:
+                    print("Download: ", file.file_path())
+
+                self.client.upload_file(self.crawler.download_file(file), destination + file.file_path())
+
+        # Fetch announcements
+        announcements = self.crawler.download_announcements(remote_url)
+
+        remote_announcements = self.client.download_file(destination + ANNOUNCEMENTS_FILE_NAME) or ""
+        if remote_announcements != "":
+            remote_announcements = remote_announcements.text
+
+        for anc in announcements:
+            if anc.get_hash() not in self.__announcements_db:
+                self.__announcements_db.append(anc.get_hash())
+
+                remote_announcements = anc.format_markdown() + remote_announcements
+
+                if self.args.verbose:
+                    print("Announcement: " + anc.title)
+
+        self.client.upload_file(remote_announcements.encode("utf-8"), destination + ANNOUNCEMENTS_FILE_NAME)
 
 
 class FilesystemSync:
@@ -89,5 +129,5 @@ class FilesystemSync:
             for anc in announcements:
                 print("Announcement: ", anc.title)
 
-        with open(os.path.join(destination, "Ankündigungen.md"), "w") as local_file:
+        with open(os.path.join(destination, ANNOUNCEMENTS_FILE_NAME), "w") as local_file:
             local_file.write("\n\n\n".join([a.format_markdown() for a in announcements]))

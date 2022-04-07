@@ -1,7 +1,7 @@
 import configargparse
 import yaml
 
-from sync import FilesystemSync
+from sync import FilesystemSync, NextcloudSync
 
 if __name__ == '__main__':
 
@@ -33,26 +33,28 @@ if __name__ == '__main__':
 
     # Start program
 
+    syncer = None
     if args.target == "filesystem":
         # Sync module to local folder
-
-        fileSync = FilesystemSync(args)
-        fileSync.open()
-
-        if args.single_link:
-            if args.verbose:
-                print("Sync single module: " + args.single_link)
-
-            fileSync.sync_module(args.single_link, args.output)
-        else:
-            for module in modules:
-                if args.verbose:
-                    print("Sync module: " + module)
-
-                fileSync.sync_module(module.module_link, module.destination)
-
-        fileSync.close()
+        syncer = FilesystemSync(args)
 
     elif args.target == "nextcloud":
         # Sync module to nextcloud
-        pass
+        syncer = NextcloudSync(args)
+
+    # Start sync process
+    syncer.open()
+
+    if args.single_link:
+        if args.verbose:
+            print("Sync single module: " + args.single_link)
+
+        syncer.sync_module(args.single_link, args.output)
+    else:
+        for module in modules:
+            if args.verbose:
+                print("Sync module: " + module)
+
+            syncer.sync_module(module.module_link, module.destination)
+
+    syncer.close()
