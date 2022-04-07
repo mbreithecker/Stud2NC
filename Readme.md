@@ -22,7 +22,9 @@ source code a little and publish it on GitHub.
 
 ### Installation
 ```
-zip Stud2NC src/*
+cd src
+zip ../Stud2NC src/*
+cd ..
 python3 Stud2NC.zip [args]
 ```
 Copy `Stud2NC.zip` and (the configured) `config.yaml` to a VPS and configure a
