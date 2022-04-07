@@ -1,0 +1,53 @@
+################################################################
+#                 Stud2NC - Configuration File                 #
+################################################################
+
+
+################################
+#      REQUIRED SETTINGS       #
+################################
+
+# Stud.IP credentials
+studip_url: "https://studip.uni-giessen.de/"
+studip_user: "USER"
+studip_password: "PASSWORD"
+
+# Can be either 'nextcloud' or 'filesystem'
+target: "nextcloud"
+
+
+################################
+#     FILESYSTEM SETTINGS      #
+################################
+
+# Directory to store the folders to
+output: "./out"
+
+
+################################
+#     NEXTCLOUD SETTINGS       #
+################################
+
+# Nextcloud credentials
+nextcloud_url: "https://nextcloud.com/remote.php/dav/files/${USER}/"
+nextcloud_user: "USER"
+nextcloud_password: "PASSWORD"
+
+
+################################
+#        SYNC SETTINGS         #
+################################
+
+# Specify all modules to sync
+# module_link corresponds to the "Overview"-page of a specific module
+# Destination is the name of the destination folder
+# This setting will be ignored, if -s (--single_file) is specified
+modules:
+  - module_link: "https://studip.uni-giessen.de/dispatch.php/course/overview?cid=a5c7cecf4dd797d3e5d5bc46b002bf79"
+    destination: "Höhere Hadronenphysik"
+  - module_link: "https://studip.uni-giessen.de/dispatch.php/course/overview?cid=1b0697ce49b72a70d7b21a3ffb3d0f20"
+    destination: "Höhere Hadronenphysik/Übung"
+  - module_link: "https://studip.uni-giessen.de/dispatch.php/course/overview?cid=f5598b97cc292fe16d123429f3e960c8"
+    destination: "Höhere Quantenmechanik"
+  - module_link: "https://studip.uni-giessen.de/dispatch.php/course/overview?cid=fdf05602ab73810254b053851f6dfe01"
+    destination: "Höhere Quantenmechanik/Übung"
