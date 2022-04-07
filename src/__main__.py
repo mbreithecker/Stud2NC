@@ -27,8 +27,9 @@ if __name__ == '__main__':
     modules = []
     try:
         with open("config.yaml") as config_file:
-            modules = yaml.safe_load(config_file)
+            modules = yaml.safe_load(config_file)["modules"]
     except:
+        print("Error parsing config.yaml")
         pass
 
     # Start program
@@ -53,8 +54,8 @@ if __name__ == '__main__':
     else:
         for module in modules:
             if args.verbose:
-                print("Sync module: " + module)
+                print("Sync module: ", module)
 
-            syncer.sync_module(module.module_link, module.destination)
+            syncer.sync_module(module["module_link"], module["destination"])
 
     syncer.close()
