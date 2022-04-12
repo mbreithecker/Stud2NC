@@ -40,7 +40,7 @@ class Announcement:
 
     def get_hash(self):
         """
-        Returns hash of the announcement, needed to check for duplicated
+        Returns hash of the announcement, needed to check for duplicates
         :return: hash
         """
         text_to_hash = "-#-".join([self.title, self.date, self.content])
