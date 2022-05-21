@@ -9,8 +9,8 @@ ANNOUNCEMENTS_FILE_NAME = "_Ankündigungen.md"
 
 class NextcloudSync:
 
-    __file_db_name = "sz_file_db_2.txt"
-    __announcements_db_name = "sz_anc_db_2.txt"
+    __file_db_name = "sz_file_db.txt"
+    __announcements_db_name = "sz_anc_db.txt"
 
     def __init__(self, args):
         self.args = args
@@ -57,8 +57,8 @@ class NextcloudSync:
         files = self.crawler.find(remote_url.replace("overview", "files"))
 
         for file in files:
-            if file.file_path() not in self.__file_db:
-                self.__file_db.append(file.file_path())
+            if file.download_url not in self.__file_db:
+                self.__file_db.append(file.download_url)
 
                 if self.args.verbose:
                     print("Download: ", file.file_path())
