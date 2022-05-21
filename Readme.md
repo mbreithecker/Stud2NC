@@ -1,5 +1,5 @@
 # Stud2NC
-###### Version: 1.0.0 for Stud.IP v4.6.2.1
+###### Version: 1.1.0 for Stud.IP v4.6.2.1
 
 ---
 ### Introduction
@@ -21,6 +21,11 @@ Since I'm no longer attending university I decided to polish the
 source code a little and publish it on GitHub.
 
 ### Installation
+Install all modules listed in `requirements.txt`
+```
+pip install -r requirements.txt
+```
+Then pack all files into one zip-archive
 ```
 cd src
 zip ../Stud2NC.zip ./*
