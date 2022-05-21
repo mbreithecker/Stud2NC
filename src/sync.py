@@ -72,16 +72,19 @@ class NextcloudSync:
         if remote_announcements != "":
             remote_announcements = remote_announcements.text
 
+        flag_update_announcements = False
         for anc in announcements:
             if anc.get_hash() not in self.__announcements_db:
                 self.__announcements_db.append(anc.get_hash())
+                flag_update_announcements = True
 
                 remote_announcements = anc.format_markdown() + remote_announcements
 
                 if self.args.verbose:
                     print("Announcement: " + anc.title)
 
-        self.client.upload_file(remote_announcements.encode("utf-8"), destination + ANNOUNCEMENTS_FILE_NAME)
+        if flag_update_announcements:
+            self.client.upload_file(remote_announcements.encode("utf-8"), destination + ANNOUNCEMENTS_FILE_NAME)
 
 
 class FilesystemSync:
